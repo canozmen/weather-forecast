@@ -1,0 +1,27 @@
+name: New Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.203
+    - name: 'Build project'
+      uses: cake-build/cake-action@v1
+      with:
+        target: Build
+    - name: 'Test project'
+      uses: cake-build/cake-action@v1
+      with:
+        target: Run-Tests
+        verbosity: Diagnostic
+
+
