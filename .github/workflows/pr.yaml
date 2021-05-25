@@ -10,6 +10,10 @@ jobs:
     steps:
     - name: 'Checkout Github Action'
       uses: actions/checkout@v2
+    - uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'    
     - name: Setup .NET 2.1
       uses: actions/setup-dotnet@v1
       with:
