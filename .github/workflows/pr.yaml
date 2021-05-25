@@ -14,6 +14,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.203
+    - name: 'Start Sonarqube'
+      uses: cake-build/cake-action@v1
+      with:
+        target: Sonar-Begin
     - name: 'Build project'
       uses: cake-build/cake-action@v1
       with:
@@ -22,6 +26,10 @@ jobs:
       uses: cake-build/cake-action@v1
       with:
         target: Run-Tests
-        verbosity: Diagnostic
+    - name: 'End Sonarqube'
+      uses: cake-build/cake-action@v1
+      with:
+        target: Sonar-End        
+
 
 

@@ -3,7 +3,7 @@
 #addin nuget:?package=Cake.Sonar&version=1.1.22
 #tool dotnet:?package=dotnet-reportgenerator-globaltool&version=4.6.7
 
-#tool "nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.6.0"
+#tool "nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0"
 #module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
 
 
