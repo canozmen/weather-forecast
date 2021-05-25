@@ -95,6 +95,7 @@ Task("Sonar-Begin")
    var sonarqubeApiKey = EnvironmentVariable("SONAR_API_KEY"); 
    var sonarBeginSettings= new SonarBeginSettings();
    sonarBeginSettings.Key=projectName;
+   sonarBeginSettings.Organization="ilkerhalil";
    sonarBeginSettings.Url= "https://sonarcloud.io";
    sonarBeginSettings.Login = sonarqubeApiKey;
    sonarBeginSettings.ArgumentCustomization = args => args.Append($"/d:sonar.coverageReportPaths=\"{testReportPath}\"");

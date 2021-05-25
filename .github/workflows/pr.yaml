@@ -10,6 +10,10 @@ jobs:
     steps:
     - name: 'Checkout Github Action'
       uses: actions/checkout@v2
+    - name: Setup .NET 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '2.1.x'      
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
