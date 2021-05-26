@@ -102,7 +102,6 @@ Task("Sonar-Begin")
    SonarBegin(sonarBeginSettings);
     
 });
-
 Task("Sonar-End")
     .Does(() =>
 {
@@ -111,5 +110,17 @@ Task("Sonar-End")
         Login = sonarqubeApiKey
      });
 });
+Task("Sonar")
+.IsDependentOn("Sonar-Begin")
+.IsDependentOn("Build")
+.IsDependentOn("Run-Tests")
+.IsDependentOn("Sonar-End")
+.Does(()=> {
+    Information("Finished Sonar");
+
+}
+);
+
+
 
 RunTarget(target);

@@ -25,19 +25,11 @@ jobs:
     - name: 'Start Sonarqube'
       uses: cake-build/cake-action@v1
       with:
-        target: Sonar-Begin
-    - name: 'Build project'
-      uses: cake-build/cake-action@v1
-      with:
-        target: Build
-    - name: 'Test project'
-      uses: cake-build/cake-action@v1
-      with:
-        target: Run-Tests
-    - name: 'End Sonarqube'
-      uses: cake-build/cake-action@v1
-      with:
-        target: Sonar-End        
+        target: Sonar
+      env:
+        SONAR_API_KEY: ${{secrets.SONAR_API_KEY}}
+        
+       
 
 
 
