@@ -26,6 +26,9 @@ jobs:
       uses: cake-build/cake-action@v1
       with:
         target: Sonar
+      env:
+        SONAR_API_KEY: ${{secrets.SONAR_API_KEY}}
+        
        
 
 
