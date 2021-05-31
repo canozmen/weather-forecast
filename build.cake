@@ -152,6 +152,7 @@ Task("Docker-Push")
 .IsDependentOn("Get-Version")
 .Does(()=>
 {
+    var dockerImageName =$"{dockerHubUrl}/{imageName}:{version}";
     if(!BuildSystem.IsLocalBuild){
         var userName = EnvironmentVariable("DOCKER_REGISTRY_USERNAME");
         var password = EnvironmentVariable("DOCKER_REGISTRY_PASSWORD");
