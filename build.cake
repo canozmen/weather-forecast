@@ -16,9 +16,9 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var publishDir = Argument ("publishDir", "./publish");
 var solutionDir = System.IO.Directory.GetCurrentDirectory ();
-var dockerHubUrl = "ghcr.io";
+var dockerHubUrl = "ghcr.io/ilkerhalil";
 var projectName = "weather-forecast-sample";
-var imageName="weather-forecast-api";
+var imageName="weather-forecast";
 var coverletDirectory = "./coverlet";
 FilePath filePath = "./coverlet/results-Api.UnitTests.xml";
 

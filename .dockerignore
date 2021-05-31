@@ -1,6 +1,5 @@
-src/bin/
-src/obj/
-test/bin/
-test/obj
+src/
+test/
 .sonarqube/
-.coverlet/
+coverlet/
+.dotnet/
