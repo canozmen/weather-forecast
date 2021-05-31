@@ -22,12 +22,17 @@ jobs:
       uses: cake-build/cake-action@v1
       with:
         target: Docker-Build
+    - name: Read version.md
+      id: package
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ./version.md
     - name: Check Dockerfile for Sysdig
       uses: sysdiglabs/scan-action@v3
       with:
         sysdig-secure-url: "https://eu1.app.sysdig.com"
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
-        image-tag: ${{ env.DOCKER_IMAGE_NAME }}
+        image-tag: ghcr.io/weather-forecast-api:"${{ steps.package.outputs.content }}"
 
 
 
