@@ -6,6 +6,7 @@
 #tool "nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0"
 #module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
 #addin "nuget:?package=Cake.Docker&version=0.10.0"
+#addin nuget:?package=Cake.Git&version=1.0.1
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -167,6 +168,28 @@ Task("Get-Version")
     version = System.Text.RegularExpressions.Regex.Replace(version, @"\t|\n|\r", "");
     Information($"Current Version {version}");
 });
+Task("Helm-Deploy")
+.IsDependentOn("Get-Version")
+.Does(() =>
+{
+    var parameterBuilder = new StringBuilder();
+    parameterBuilder.Append(" weather-forecast ./chart --create-namespace --install --wait --timeout=120s ");
+    
+    var repositoryDirectoryPath = DirectoryPath.FromString(".");
+    var currentBranch = GitBranchCurrent(repositoryDirectoryPath);
 
+    var targetNameSpace =  currentBranch.CanonicalName == "development"?"weather-forecast-beta":"weather-forecast";
+    parameterBuilder.Append($"--namespace={targetNameSpace} ");
+    parameterBuilder.Append($"--set namespace={targetNameSpace} ");
+    parameterBuilder.Append($"--set image.tag={version} ");
+    var environment= BuildSystem.Jenkins.Environment.Repository.BranchName == "development"?"Beta":"Production";
+    parameterBuilder.Append($"--set image.env[0].name=ASPNETCORE_ENVIRONMENT --set image.env[0].value={environment} ");
+    var parameters = parameterBuilder.ToString();
+    var result = StartProcess("helm",$"upgrade {parameters}");
+    if(result!=0)
+    {
+        throw new Exception($"Message {parameters}");
+    }
+});
 
 RunTarget(target);

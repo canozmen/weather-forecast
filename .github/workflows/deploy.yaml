@@ -14,6 +14,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.203
+    - name: Install Helm
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh        
     - name: Publish
       uses: cake-build/cake-action@v1
       with:
@@ -28,13 +33,24 @@ jobs:
       with:
         path: ./version.md
     - name: Check Dockerfile for Sysdig
-      uses: sysdiglabs/scan-action@v3
+      uses: sysdiglabs/scan-action@v3.0.1
       with:
         sysdig-secure-url: "https://eu1.app.sysdig.com"
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
         image-tag: ghcr.io/weather-forecast-api:"${{ steps.package.outputs.content }}"
         input-type: docker-daemon
         run-as-user: root
+    - name: Docker Push
+      uses: cake-build/cake-action@v1
+      with:
+        target: Docker-Push  
+    - name: Deploy Kubernetes
+      uses: cake-build/cake-action@v1
+      with:
+        target: Helm-Deploy
+      env:
+        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+        
 
 
 

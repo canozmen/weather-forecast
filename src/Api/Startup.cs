@@ -52,6 +52,7 @@ namespace Api
             services.AddLogging(lg => lg.AddSerilog(_logger));
             services.AddHttpClient();
             services.AddSwaggerGen();
+            services.AddHealthChecks();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,10 +70,13 @@ namespace Api
 
 
             app.UseRouting();
+            app.UseHealthChecks("/healthz");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+            
+            
         }
     }
 }

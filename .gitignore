@@ -321,6 +321,7 @@ tools/**
 
 # Tabs Studio
 *.tss
+.dotnet/
 
 # Telerik's JustMock configuration file
 *.jmconfig
