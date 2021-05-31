@@ -33,6 +33,7 @@ jobs:
         sysdig-secure-url: "https://eu1.app.sysdig.com"
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
         image-tag: ghcr.io/weather-forecast-api:"${{ steps.package.outputs.content }}"
+        input-type: docker-daemon
 
 
 
