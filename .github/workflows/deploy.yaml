@@ -44,6 +44,9 @@ jobs:
       uses: cake-build/cake-action@v1
       with:
         target: Docker-Push  
+      env: 
+        DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
+        DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'
     - name: Deploy Kubernetes
       uses: cake-build/cake-action@v1
       with:
