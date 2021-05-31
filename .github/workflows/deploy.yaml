@@ -1,0 +1,33 @@
+name: Deploy Heroku
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.203
+    - name: Publish
+      uses: cake-build/cake-action@v1
+      with:
+        target: Publish
+    - name: Docker Build
+      uses: cake-build/cake-action@v1
+      with:
+        target: Docker-Build
+    - name: Check Dockerfile for Sysdig
+      uses: sysdiglabs/scan-action@v3
+      with:
+        sysdig-secure-url: "https://eu1.app.sysdig.com"
+        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
+        image-tag: ${{ env.DOCKER_IMAGE_NAME }}
+
+
+

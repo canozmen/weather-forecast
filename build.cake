@@ -5,7 +5,7 @@
 
 #tool "nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0"
 #module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
-
+#addin "nuget:?package=Cake.Docker&version=0.10.0"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -20,6 +20,8 @@ var projectName = "weather-forecast-sample";
 var imageName="weather-forecast-api";
 var coverletDirectory = "./coverlet";
 FilePath filePath = "./coverlet/results-Api.UnitTests.xml";
+
+string version="";
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,16 +113,59 @@ Task("Sonar-End")
      });
 });
 Task("Sonar")
-.IsDependentOn("Sonar-Begin")
-.IsDependentOn("Build")
-.IsDependentOn("Run-Tests")
-.IsDependentOn("Sonar-End")
-.Does(()=> {
-    Information("Finished Sonar");
+    .IsDependentOn("Sonar-Begin")
+    .IsDependentOn("Build")
+    .IsDependentOn("Run-Tests")
+    .IsDependentOn("Sonar-End")
+    .Does(()=> {
+        Information("Finished Sonar");
 
-}
+    }
 );
 
+Task("Publish")
+.Does(()=>{
+    var settings=  new DotNetCorePublishSettings
+    {
+        Configuration = configuration,
+        OutputDirectory = publishDir,
+        ArgumentCustomization = args => args.Append($"/p:Version={version}")
+    };
+    DotNetCorePublish("./src/Api/Api.csproj",settings);
+});
+
+Task("Docker-Build")
+.IsDependentOn("Get-Version")
+.Does(()=>{
+    var dockerImageName =$"{dockerHubUrl}/{imageName}:{version}";
+    DockerImageBuildSettings settings = new DockerImageBuildSettings();
+    settings.Rm = true;
+    settings.NoCache = true;
+    settings.DisableContentTrust = true;
+    settings.Tag = new string [] {dockerImageName};
+    Environment.SetEnvironmentVariable("DOCKER_IMAGE_NAME",dockerImageName);
+    DockerBuild(settings,".");
+
+});
+
+Task("Docker-Push")
+.IsDependentOn("Get-Version")
+.Does(()=>
+{
+    if(!BuildSystem.IsLocalBuild){
+        var userName = EnvironmentVariable("DOCKER_REGISTRY_USERNAME");
+        var password = EnvironmentVariable("DOCKER_REGISTRY_PASSWORD");
+        DockerLogin(userName,password,dockerHubUrl);
+    }     
+    DockerPush(dockerImageName);    
+});
+Task("Get-Version")
+    .Does(() =>
+{
+    version = System.IO.File.ReadAllText("./version.md");
+    version = System.Text.RegularExpressions.Regex.Replace(version, @"\t|\n|\r", "");
+    Information($"Current Version {version}");
+});
 
 
 RunTarget(target);
