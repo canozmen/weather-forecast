@@ -34,6 +34,7 @@ jobs:
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
         image-tag: ghcr.io/weather-forecast-api:"${{ steps.package.outputs.content }}"
         input-type: docker-daemon
+        run-as-user: root
 
 
 
