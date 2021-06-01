@@ -197,7 +197,7 @@ Task("Helm-Deploy")
     var mail = "ilkerhalil@gmail.com";
     var targetNameSpace =  currentBranch.CanonicalName.Contains("development")?"weather-forecast-beta":"weather-forecast";
     var parameterBuilder = new StringBuilder();
-    parameterBuilder.Append(" weather-forecast ./chart --install --insecure-skip-tls-verify --create-namespace --wait --timeout=120s ");
+    parameterBuilder.Append(" weather-forecast ./chart --install --insecure-skip-tls-verify --create-namespace --wait ");
     parameterBuilder.Append($"--namespace {targetNameSpace} ");
     parameterBuilder.Append($"--set image.tag={version} ");
     parameterBuilder.Append($"--set imageCredentials.username={userName} ");
