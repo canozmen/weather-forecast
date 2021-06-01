@@ -30,6 +30,6 @@
   </ItemGroup>
   <Target Name="T2" BeforeTargets="AfterBuild">
     <Delete Files="../../version.md"/>
-    <WriteLinesToFile File="../../version.md" Lines="$(Version)"/>
+    <WriteLinesToFile File="../../version.md" Lines="$(Version)" Overwrite="true"/>
   </Target>
 </Project>

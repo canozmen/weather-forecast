@@ -147,6 +147,7 @@ Task("Docker-Build")
     settings.Tag = new string [] {dockerImageName};
     DockerBuild(settings,".");
     DockerTag(dockerImageName,$"{imageName}:{version}");
+    
 
 });
 
@@ -167,7 +168,10 @@ Task("Get-Version")
 {
     version = System.IO.File.ReadAllText("./version.md");
     version = System.Text.RegularExpressions.Regex.Replace(version, @"\t|\n|\r", "");
+    System.IO.File.Delete("./version.md");
+    System.IO.File.WriteAllText("./version.md",version);
     Information($"Current Version {version}");
+
 });
 Task("Helm-Deploy")
 .IsDependentOn("Get-Version")
