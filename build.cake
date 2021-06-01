@@ -198,8 +198,8 @@ Task("Helm-Deploy")
     var targetNameSpace =  currentBranch.CanonicalName == "development"?"weather-forecast-beta":"weather-forecast";
     parameterBuilder.Append($"--set namespace={targetNameSpace} ");
     parameterBuilder.Append($"--set image.tag={version} ");
-    parameterBuilder.Append($"--set imageCredentials.username=$DOCKER_REGISTRY_USERNAME");
-    parameterBuilder.Append($"--set imageCredentials.password=$DOCKER_REGISTRY_PASSWORD");
+    parameterBuilder.Append($"--set imageCredentials.username=$DOCKER_REGISTRY_USERNAME ");
+    parameterBuilder.Append($"--set imageCredentials.password=$DOCKER_REGISTRY_PASSWORD ");
     var parameters = parameterBuilder.ToString();
     var result = StartProcess("helm",$"upgrade {parameters}");
     if(result!=0)
