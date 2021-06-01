@@ -146,6 +146,7 @@ Task("Docker-Build")
     settings.DisableContentTrust = true;
     settings.Tag = new string [] {dockerImageName};
     DockerBuild(settings,".");
+    DockerTag(dockerImageName,$"{imageName}:{version}");
 
 });
 
