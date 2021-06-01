@@ -12,4 +12,4 @@ RUN chown -R dotnet:dotnet /app
 
 USER dotnet
 ENTRYPOINT ["dotnet","Api.dll"]
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl -I http://127.0.0.1/healthz --fail || exit 1" ]
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl -I http://127.0.0.1:8080/healthz --fail || exit 1" ]
