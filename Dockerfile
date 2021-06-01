@@ -3,6 +3,13 @@ WORKDIR /app
 COPY publish/ .
 ENV ASPNETCORE_URLS=http://+:80  
 EXPOSE 80
+# Create a user group 'xyzgroup'
+RUN addgroup -S dotnet
+# Create a user 'appuser' under 'xyzgroup'
+RUN adduser -S -D -h /app dotnet dotnet
+# Chown all the files to the app user.
+RUN chown -R dotnet:dotnet /app
+
 USER dotnet
 ENTRYPOINT ["dotnet","Api.dll"]
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl -I http://127.0.0.1/healthz --fail || exit 1" ]
