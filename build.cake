@@ -144,7 +144,6 @@ Task("Docker-Build")
     settings.NoCache = true;
     settings.DisableContentTrust = true;
     settings.Tag = new string [] {dockerImageName};
-    Environment.SetEnvironmentVariable("DOCKER_IMAGE_NAME",dockerImageName);
     DockerBuild(settings,".");
 
 });

@@ -7,6 +7,8 @@
     <MinVerTagPrefix>v</MinVerTagPrefix>
     <Version>$(Version)</Version>
     <MinVerDefaultPreReleasePhase>beta</MinVerDefaultPreReleasePhase>
+    <PackageVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).$(MinVerPreRelease)</PackageVersion>
+
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0"/>
