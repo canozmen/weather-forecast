@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0.202-alpine3.13-amd64
 WORKDIR /app
 COPY publish/ .
-ENV ASPNETCORE_URLS=http://+:80  
-EXPOSE 80
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
 # Create a user group 'xyzgroup'
 RUN addgroup -S dotnet
 # Create a user 'appuser' under 'xyzgroup'
