@@ -14,7 +14,7 @@ imageCredentials:
   registry: ghcr.io
   username: someone
   password: sillyness
-  email: 
+  email: "someone@example.com"
 
 replicaCount: 1
 

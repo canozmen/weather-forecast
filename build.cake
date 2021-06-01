@@ -194,6 +194,7 @@ Task("Helm-Deploy")
 {
     var userName = EnvironmentVariable("DOCKER_REGISTRY_USERNAME");
     var password = EnvironmentVariable("DOCKER_REGISTRY_PASSWORD");
+    var mail = "ilkerhalil@gmail.com";
     var targetNameSpace =  currentBranch.CanonicalName.Contains("development")?"weather-forecast-beta":"weather-forecast";
     var parameterBuilder = new StringBuilder();
     parameterBuilder.Append(" weather-forecast ./chart --install --insecure-skip-tls-verify --create-namespace --wait --timeout=120s ");
@@ -201,6 +202,7 @@ Task("Helm-Deploy")
     parameterBuilder.Append($"--set image.tag={version} ");
     parameterBuilder.Append($"--set imageCredentials.username={userName} ");
     parameterBuilder.Append($"--set imageCredentials.password={password} ");
+    parameterBuilder.Append($"--set imageCredentials.email={mail} ");
     var parameters = parameterBuilder.ToString();
     var result = StartProcess("helm",$"upgrade {parameters}");
     if(result!=0)
