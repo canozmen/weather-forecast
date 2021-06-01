@@ -10,6 +10,12 @@ image:
 
 imagePullSecrets: regcred
 
+imageCredentials:
+  registry: ghcr.io
+  username: someone
+  password: sillyness
+  email: 
+
 replicaCount: 1
 
 service:

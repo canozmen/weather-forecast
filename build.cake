@@ -21,6 +21,8 @@ var projectName = "weather-forecast-sample";
 var imageName="weather-forecast";
 var coverletDirectory = "./coverlet";
 FilePath filePath = "./coverlet/results-Api.UnitTests.xml";
+var repositoryDirectoryPath = DirectoryPath.FromString(".");
+var currentBranch = GitBranchCurrent(repositoryDirectoryPath);
 
 string version="";
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,6 +148,16 @@ Task("Docker-Build")
     settings.DisableContentTrust = true;
     settings.Tag = new string [] {dockerImageName};
     DockerBuild(settings,".");
+    if(currentBranch.CanonicalName == "master")
+    {
+        dockerImageName =$"{dockerHubUrl}/{imageName}:latest";
+        settings = new DockerImageBuildSettings();
+        settings.Rm = true;
+        settings.NoCache = true;
+        settings.DisableContentTrust = true;
+        settings.Tag = new string [] {dockerImageName};
+        DockerBuild(settings,".");
+    }
 });
 
 Task("Docker-Push")
@@ -157,8 +169,14 @@ Task("Docker-Push")
         var userName = EnvironmentVariable("DOCKER_REGISTRY_USERNAME");
         var password = EnvironmentVariable("DOCKER_REGISTRY_PASSWORD");
         DockerLogin(userName,password,dockerHubUrl);
+    }
+    DockerPush(dockerImageName);
+    if(currentBranch.CanonicalName == "master")
+    {
+        dockerImageName =$"{dockerHubUrl}/{imageName}:latest";
+        DockerPush(dockerImageName);
     }     
-    DockerPush(dockerImageName);    
+        
 });
 Task("Get-Version")
     .Does(() =>
@@ -177,15 +195,11 @@ Task("Helm-Deploy")
     var parameterBuilder = new StringBuilder();
     parameterBuilder.Append(" weather-forecast ./chart --create-namespace --install --wait --timeout=120s ");
     
-    var repositoryDirectoryPath = DirectoryPath.FromString(".");
-    var currentBranch = GitBranchCurrent(repositoryDirectoryPath);
-
     var targetNameSpace =  currentBranch.CanonicalName == "development"?"weather-forecast-beta":"weather-forecast";
-    parameterBuilder.Append($"--namespace={targetNameSpace} ");
     parameterBuilder.Append($"--set namespace={targetNameSpace} ");
     parameterBuilder.Append($"--set image.tag={version} ");
-    var environment= BuildSystem.Jenkins.Environment.Repository.BranchName == "development"?"Beta":"Production";
-    parameterBuilder.Append($"--set image.env[0].name=ASPNETCORE_ENVIRONMENT --set image.env[0].value={environment} ");
+    parameterBuilder.Append($"--set imageCredentials.username=$DOCKER_REGISTRY_USERNAME");
+    parameterBuilder.Append($"--set imageCredentials.password=$DOCKER_REGISTRY_PASSWORD");
     var parameters = parameterBuilder.ToString();
     var result = StartProcess("helm",$"upgrade {parameters}");
     if(result!=0)

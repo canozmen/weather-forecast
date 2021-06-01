@@ -20,7 +20,11 @@ jobs:
       run: |
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
         chmod 700 get_helm.sh
-        ./get_helm.sh        
+        ./get_helm.sh
+        mkdir $HOME/.kube
+        echo $KUBECONFIG_FILE > $HOME/.kube/config
+      env:
+        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'        
     - name: Publish
       uses: cake-build/cake-action@v1
       with:
@@ -49,12 +53,14 @@ jobs:
       env: 
         DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
         DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'
-    - name: Deploy Kubernetes
+    - name: Deploy Kubernetes    
       uses: cake-build/cake-action@v1
       with:
         target: Helm-Deploy
       env:
-        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+        DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
+        DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'      
+        
         
 
 
