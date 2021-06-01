@@ -193,7 +193,7 @@ Task("Helm-Deploy")
 .Does(() =>
 {
     var parameterBuilder = new StringBuilder();
-    parameterBuilder.Append(" weather-forecast ./chart --kubeconfig=$HOME/.kube/config --create-namespace --install --wait --timeout=120s ");
+    parameterBuilder.Append(" weather-forecast ./chart --install --insecure-skip-tls-verify --create-namespace  --wait --timeout=120s ");
     
     var targetNameSpace =  currentBranch.CanonicalName == "development"?"weather-forecast-beta":"weather-forecast";
     parameterBuilder.Append($"--set namespace={targetNameSpace} ");
