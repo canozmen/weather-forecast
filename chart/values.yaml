@@ -1,6 +1,6 @@
 namespace: Default
 image:
- repository: ghcr.io/weather-forecast
+ repository: ghcr.io/ilkerhalil/weather-forecast
  tag: 1.0.1
  pullPolicy: Always
  containerPort: 80
