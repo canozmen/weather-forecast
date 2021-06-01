@@ -192,11 +192,10 @@ Task("Helm-Deploy")
 .IsDependentOn("Get-Version")
 .Does(() =>
 {
+    var targetNameSpace =  currentBranch.CanonicalName.Contains("development")?"weather-forecast-beta":"weather-forecast";
     var parameterBuilder = new StringBuilder();
     parameterBuilder.Append(" weather-forecast ./chart --install --insecure-skip-tls-verify --create-namespace  --wait --timeout=120s ");
-    
-    var targetNameSpace =  currentBranch.CanonicalName == "development"?"weather-forecast-beta":"weather-forecast";
-    parameterBuilder.Append($"--set namespace={targetNameSpace} ");
+    parameterBuilder.Append($"--namespace ${targetNameSpace} ");
     parameterBuilder.Append($"--set image.tag={version} ");
     parameterBuilder.Append($"--set imageCredentials.username=$DOCKER_REGISTRY_USERNAME ");
     parameterBuilder.Append($"--set imageCredentials.password=$DOCKER_REGISTRY_PASSWORD ");
