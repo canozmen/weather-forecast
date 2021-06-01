@@ -28,7 +28,10 @@ jobs:
         kubeconfig: ${{secrets.KUBECONFIG}}
       id: setcontext
       env:
-        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'        
+        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+    - name: Install Helm
+      run: |
+        kubectl get nodes --insecure-skip-tls-verify             
     - name: Publish
       uses: cake-build/cake-action@v1
       with:
