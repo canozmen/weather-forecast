@@ -21,9 +21,12 @@ jobs:
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
         chmod 700 get_helm.sh
         ./get_helm.sh
-        mkdir $HOME/.kube
-        echo $KUBECONFIG_FILE > $HOME/.kube/config
-        sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+    - uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{secrets.KUBECONFIG}}
+      id: setcontext
       env:
         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'        
     - name: Publish
