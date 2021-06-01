@@ -125,6 +125,7 @@ Task("Sonar")
 );
 
 Task("Publish")
+.IsDependentOn("Get-Version")
 .Does(()=>{
     var settings=  new DotNetCorePublishSettings
     {
