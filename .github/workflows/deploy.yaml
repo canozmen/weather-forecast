@@ -23,6 +23,7 @@ jobs:
         ./get_helm.sh
         mkdir $HOME/.kube
         echo $KUBECONFIG_FILE > $HOME/.kube/config
+        sudo chown $(id -u):$(id -g) $HOME/.kube/config
       env:
         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'        
     - name: Publish
