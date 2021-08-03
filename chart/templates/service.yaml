@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-service
+  labels:
+    app: {{ .Release.Name }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.service.type | default "ClusterIP"}} 
+  ports:
+    - port: {{ .Values.service.port }}
+      name: http
+      targetPort: {{ .Values.image.containerPort }}
+  selector:
+    app: {{ .Release.Name }}

@@ -1,0 +1,75 @@
+name: Deploy Kubernetes
+
+on:
+  push:
+    branches:
+      - development
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.203
+    - name: Install Helm
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+
+    - uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{secrets.KUBECONFIG}}
+      id: setcontext
+      env:
+        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+    - name: Install Helm
+      run: |
+        kubectl get nodes --insecure-skip-tls-verify
+        kubectl config view --raw > $HOME/.kube/config         
+    - name: Publish
+      uses: cake-build/cake-action@v1
+      with:
+        target: Publish
+    - name: Docker Build
+      uses: cake-build/cake-action@v1
+      with:
+        target: Docker-Build
+    - name: Read version.md
+      id: package
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ./version.md
+    - name: Check Dockerfile for Sysdig
+      uses: sysdiglabs/scan-action@v3.0.1
+      with:
+        sysdig-secure-url: "https://eu1.app.sysdig.com"
+        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
+        image-tag: ghcr.io/ilkerhalil/weather-forecast:"${{ steps.package.outputs.content }}"
+        input-type: docker-daemon
+        run-as-user: root
+    - name: Docker Push
+      uses: cake-build/cake-action@v1
+      with:
+        target: Docker-Push  
+      env: 
+        DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
+        DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'
+    - name: Deploy Kubernetes    
+      uses: cake-build/cake-action@v1
+      with:
+        target: Helm-Deploy
+      env:
+        DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
+        DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'      
+        
+        
+
+
+

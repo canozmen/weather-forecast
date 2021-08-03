@@ -1,0 +1,65 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata: 
+  name: {{ .Release.Name }}-deployment
+  labels:
+    app: {{ .Release.Name }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount  }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.image.containerPort }}
+              name: http
+          env:
+         {{- range .Values.image.env }}
+          - name: {{ .name }}
+            value: {{ .value }}
+     {{- end }}
+        {{- range .Values.image.secret }}
+          - name: {{ .name }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ .secretName }}
+                key:  {{ .secretKey  }}
+     {{- end }}
+        {{- range .Values.image.secret }}
+          - name: {{ .name }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ .secretName }}
+                key:  {{ .secretKey  }}
+     {{- end }}
+          name:  {{ .Release.Name }}-pod
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            timeoutSeconds: 5
+          readinessProbe:
+            initialDelaySeconds: 0
+            httpGet:
+              path: /healthz
+              port: 8080
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "50m"
+            limits: 
+              memory: "1024Mi"
+              cpu: "100m"
+{{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+{{- end }}

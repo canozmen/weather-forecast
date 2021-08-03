@@ -5,7 +5,8 @@
 
 #tool "nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0"
 #module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
-
+#addin "nuget:?package=Cake.Docker&version=0.10.0"
+#addin nuget:?package=Cake.Git&version=1.0.1
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -15,11 +16,15 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var publishDir = Argument ("publishDir", "./publish");
 var solutionDir = System.IO.Directory.GetCurrentDirectory ();
-var dockerHubUrl = "ghcr.io";
+var dockerHubUrl = "ghcr.io/ilkerhalil";
 var projectName = "weather-forecast-sample";
-var imageName="weather-forecast-api";
+var imageName="weather-forecast";
 var coverletDirectory = "./coverlet";
 FilePath filePath = "./coverlet/results-Api.UnitTests.xml";
+var repositoryDirectoryPath = DirectoryPath.FromString(".");
+var currentBranch = GitBranchCurrent(repositoryDirectoryPath);
+
+string version="";
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,16 +116,99 @@ Task("Sonar-End")
      });
 });
 Task("Sonar")
-.IsDependentOn("Sonar-Begin")
-.IsDependentOn("Build")
-.IsDependentOn("Run-Tests")
-.IsDependentOn("Sonar-End")
-.Does(()=> {
-    Information("Finished Sonar");
+    .IsDependentOn("Sonar-Begin")
+    .IsDependentOn("Build")
+    .IsDependentOn("Run-Tests")
+    .IsDependentOn("Sonar-End")
+    .Does(()=> {
+        Information("Finished Sonar");
 
-}
+    }
 );
 
+Task("Publish")
+.IsDependentOn("Build")
+.Does(()=>{
+    var settings=  new DotNetCorePublishSettings
+    {
+        Configuration = configuration,
+        OutputDirectory = publishDir,
+        ArgumentCustomization = args => args.Append($"/p:Version={version}")
+    };
+    DotNetCorePublish("./src/Api/Api.csproj",settings);
+});
 
+Task("Docker-Build")
+.IsDependentOn("Get-Version")
+.Does(()=>{
+    var dockerImageName =$"{dockerHubUrl}/{imageName}:{version}";
+    DockerImageBuildSettings settings = new DockerImageBuildSettings();
+    settings.Rm = true;
+    settings.NoCache = true;
+    settings.DisableContentTrust = true;
+    settings.Tag = new string [] {dockerImageName};
+    DockerBuild(settings,".");
+    if(currentBranch.CanonicalName == "master")
+    {
+        dockerImageName =$"{dockerHubUrl}/{imageName}:latest";
+        settings = new DockerImageBuildSettings();
+        settings.Rm = true;
+        settings.NoCache = true;
+        settings.DisableContentTrust = true;
+        settings.Tag = new string [] {dockerImageName};
+        DockerBuild(settings,".");
+    }
+});
+
+Task("Docker-Push")
+.IsDependentOn("Get-Version")
+.Does(()=>
+{
+    var dockerImageName =$"{dockerHubUrl}/{imageName}:{version}";
+    if(!BuildSystem.IsLocalBuild){
+        var userName = EnvironmentVariable("DOCKER_REGISTRY_USERNAME");
+        var password = EnvironmentVariable("DOCKER_REGISTRY_PASSWORD");
+        DockerLogin(userName,password,dockerHubUrl);
+    }
+    DockerPush(dockerImageName);
+    if(currentBranch.CanonicalName == "master")
+    {
+        dockerImageName =$"{dockerHubUrl}/{imageName}:latest";
+        DockerPush(dockerImageName);
+    }     
+        
+});
+Task("Get-Version")
+    .Does(() =>
+{
+    version = System.IO.File.ReadAllText("./version.md");
+    version = System.Text.RegularExpressions.Regex.Replace(version, @"\t|\n|\r", "");
+    System.IO.File.Delete("./version.md");
+    System.IO.File.WriteAllText("./version.md",version);
+    Information($"Current Version {version}");
+
+});
+Task("Helm-Deploy")
+.IsDependentOn("Get-Version")
+.Does(() =>
+{
+    var userName = EnvironmentVariable("DOCKER_REGISTRY_USERNAME");
+    var password = EnvironmentVariable("DOCKER_REGISTRY_PASSWORD");
+    var mail = "ilkerhalil@gmail.com";
+    var targetNameSpace =  currentBranch.CanonicalName.Contains("development")?"weather-forecast-beta":"weather-forecast";
+    var parameterBuilder = new StringBuilder();
+    parameterBuilder.Append(" weather-forecast ./chart --install --insecure-skip-tls-verify --create-namespace --wait ");
+    parameterBuilder.Append($"--namespace {targetNameSpace} ");
+    parameterBuilder.Append($"--set image.tag={version} ");
+    parameterBuilder.Append($"--set imageCredentials.username={userName} ");
+    parameterBuilder.Append($"--set imageCredentials.password={password} ");
+    parameterBuilder.Append($"--set imageCredentials.email={mail} ");
+    var parameters = parameterBuilder.ToString();
+    var result = StartProcess("helm",$"upgrade {parameters}");
+    if(result!=0)
+    {
+        throw new Exception($"Message {parameters}");
+    }
+});
 
 RunTarget(target);
