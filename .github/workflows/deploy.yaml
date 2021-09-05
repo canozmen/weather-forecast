@@ -32,7 +32,7 @@ jobs:
     - name: Install Helm
       run: |
         kubectl get nodes --insecure-skip-tls-verify
-        kubectl config view --raw > $HOME/.kube/config         
+        kubectl config view --raw > $HOME/.kube/config
     - name: Publish
       uses: cake-build/cake-action@v1
       with:
@@ -41,35 +41,22 @@ jobs:
       uses: cake-build/cake-action@v1
       with:
         target: Docker-Build
-    - name: Read version.md
-      id: package
-      uses: juliangruber/read-file-action@v1
-      with:
-        path: ./version.md
-    - name: Check Dockerfile for Sysdig
-      uses: sysdiglabs/scan-action@v3.0.1
-      with:
-        sysdig-secure-url: "https://eu1.app.sysdig.com"
-        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
-        image-tag: ghcr.io/ilkerhalil/weather-forecast:"${{ steps.package.outputs.content }}"
-        input-type: docker-daemon
-        run-as-user: root
     - name: Docker Push
       uses: cake-build/cake-action@v1
       with:
-        target: Docker-Push  
-      env: 
-        DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
-        DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'
-    - name: Deploy Kubernetes    
-      uses: cake-build/cake-action@v1
-      with:
-        target: Helm-Deploy
+        target: Docker-Push
       env:
         DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
-        DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'      
-        
-        
+        DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'
+    # - name: Deploy Kubernetes
+    #   uses: cake-build/cake-action@v1
+    #   with:
+    #     target: Helm-Deploy
+    #   env:
+    #     DOCKER_REGISTRY_USERNAME: '${{ secrets.DOCKER_REGISTRY_USERNAME }}'
+    #     DOCKER_REGISTRY_PASSWORD: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'
+
+
 
 
 
