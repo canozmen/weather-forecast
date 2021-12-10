@@ -60,6 +60,17 @@
             - task: DockerInstaller@0
             - task: KubectlInstaller@0
             - task: HelmInstaller@1
+            - task: DownloadSecureFile@1
+              name: kubeConfig
+              displayName: 'Download kube config'
+              inputs:
+                secureFile: 'config'
+            - script: |
+                sudo mkdir -p $HOME/.kube
+                sudo chown root:root $(kubeConfig.secureFilePath)
+                sudo chmod a+r $(kubeConfig.secureFilePath)
+                sudo cp $(kubeConfig.secureFilePath) $HOME/.kube/config  
+              displayName: 'Copy downloaded kubeconfig file'          
             - bash: | 
                 dotnet tool install --global Cake.tool
               displayName: 'Install Cake.Tool'
