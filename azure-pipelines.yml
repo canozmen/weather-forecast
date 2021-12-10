@@ -82,6 +82,8 @@
               displayName: 'Build Project'
             - script: dotnet cake --target=Run-Tests
               displayName: 'Run project tests'
+            - script: dotnet cake --target=Publish
+              displayName: 'Run project tests'              
             - script: dotnet cake --target=Docker-Build
               displayName: 'Docker build'
             - script: dotnet cake --target=Docker-Push
