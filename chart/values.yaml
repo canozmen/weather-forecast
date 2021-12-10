@@ -1,17 +1,17 @@
 namespace: Default
 image:
- repository: ghcr.io/ilkerhalil/weather-forecast
+ repository: wardensregistry01.azurecr.io/weather-forecast
  tag: 1.0.1
  pullPolicy: Always
  containerPort: 8080
- env:      
+ env:
 #  - name: ASPNETCORE_ENVIRONMENT
 #    value: BETA
 
 imagePullSecrets: regcred
 
 imageCredentials:
-  registry: ghcr.io
+  registry: wardensregistry01.azurecr.io
   username: someone
   password: sillyness
   email: "someone@example.com"
@@ -20,7 +20,7 @@ replicaCount: 1
 
 service:
  type: ClusterIP
- port: 5000 
+ port: 5000
 
 ingress:
  enabled: false
@@ -29,11 +29,11 @@ ingress:
    backend:
      serviceName: weather-forecast
      servicePort: 5000
- annotations: 
+ annotations:
   kubernetes.io/ingress.class: "nginx"
   nginx.ingress.kubernetes.io/rewrite-target: /
   nginx.ingress.kubernetes.io/proxy-body-size: "0"
  hostName: weather-forecast.formicax.io
-     
+
  tls:
 

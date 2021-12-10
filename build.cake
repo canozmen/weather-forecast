@@ -16,7 +16,7 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var publishDir = Argument ("publishDir", "./publish");
 var solutionDir = System.IO.Directory.GetCurrentDirectory ();
-var dockerHubUrl = "ghcr.io/ilkerhalil";
+var dockerHubUrl = "wardensregistry01.azurecr.io";
 var projectName = "weather-forecast-sample";
 var imageName="weather-forecast";
 var coverletDirectory = "./coverlet";
@@ -72,8 +72,8 @@ Task("Run-Tests")
     {
         Configuration = configuration,
         NoBuild=true
-    }; 
-    
+    };
+
     var coverletSettings = new CoverletSettings();
     coverletSettings.CollectCoverage =true;
     coverletSettings.CoverletOutputFormat= CoverletOutputFormat.opencover;
@@ -92,12 +92,12 @@ Task("Run-Tests")
     var generatorSettings = new ReportGeneratorSettings();
     generatorSettings.ReportTypes= new ReportGeneratorReportType[]{ReportGeneratorReportType.SonarQube};
 
-    ReportGenerator(filePath,coverletDirectory,generatorSettings);    
+    ReportGenerator(filePath,coverletDirectory,generatorSettings);
 });
 Task("Sonar-Begin")
 .Does(()=> {
    var testReportPath = Directory("./coverlet/SonarQube.xml");
-   var sonarqubeApiKey = EnvironmentVariable("SONAR_API_KEY"); 
+   var sonarqubeApiKey = EnvironmentVariable("SONAR_API_KEY");
    var sonarBeginSettings= new SonarBeginSettings();
    sonarBeginSettings.Key=projectName;
    sonarBeginSettings.Organization="ilkerhalil";
@@ -105,7 +105,7 @@ Task("Sonar-Begin")
    sonarBeginSettings.Login = sonarqubeApiKey;
    sonarBeginSettings.ArgumentCustomization = args => args.Append($"/d:sonar.coverageReportPaths=\"{testReportPath}\"");
    SonarBegin(sonarBeginSettings);
-    
+
 });
 Task("Sonar-End")
     .Does(() =>
@@ -175,8 +175,8 @@ Task("Docker-Push")
     {
         dockerImageName =$"{dockerHubUrl}/{imageName}:latest";
         DockerPush(dockerImageName);
-    }     
-        
+    }
+
 });
 Task("Get-Version")
     .Does(() =>
