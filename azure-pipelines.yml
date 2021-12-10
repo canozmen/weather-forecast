@@ -1,0 +1,85 @@
+  # stages:
+  #   trigger:
+  #     tags:
+  #       include:
+  #         - "*"
+  #   pool:
+  #     vmImage: "Ubuntu-18-04"
+  #   stage:
+  #     steps:
+  #       - task: UseDotNet@2
+  #         displayName: 'Install Dotnet Core 3.1.202'
+  #         inputs:
+  #           packageType: sdk
+  #           version: 3.1.407
+  #       - task: DockerInstaller@0
+  #       - task: KubectlInstaller@0
+  #       - task: HelmInstaller@1
+  #       - bash: | 
+  #           dotnet tool install --global Cake.tool
+  #         displayName: 'Install Cake.Tool'
+  #       - bash: |
+  #           export PATH="$PATH:$HOME/.dotnet/tools"
+  #           export PATH="$HOME/.dotnet:$PATH"
+  #         displayName: 'Export dotnet core path'
+  #       - script: dotnet cake --target=Build
+  #         displayName: 'Build Project'
+  #       - script: dotnet cake --target=Run-Tests
+  #         displayName: 'Run project tests'
+  #       - script: dotnet cake --target=Docker-Build
+  #         displayName: 'Docker build'
+  #       - script: dotnet cake --target=Docker-Push
+  #         displayName: 'Docker Push'
+  #         env:
+  #           DOCKER_REGISTRY_USERNAME: $(DOCKER_REGISTRY_USERNAME)
+  #           DOCKER_REGISTRY_PASSWORD: $(DOCKER_REGISTRY_PASSWORD)
+  #       - script: dotnet cake --target=Helm-Deploy
+  #         displayName: 'Kubernetes Deploy'
+  #         env:
+  #           DOCKER_REGISTRY_USERNAME: $(DOCKER_REGISTRY_USERNAME)
+  #           DOCKER_REGISTRY_PASSWORD: $(DOCKER_REGISTRY_PASSWORD)
+  pool:
+    vmImage: "Ubuntu-18-04"
+  trigger: 
+      tags:
+        include: 
+        - '*'          
+
+  stages:
+    
+    - stage: CD
+      jobs:
+        - job: "Deploy"
+          displayName: Publish Weather Forecast
+          steps:
+            - task: UseDotNet@2
+              displayName: 'Install Dotnet Core 3.1.202'
+              inputs:
+                packageType: sdk
+                version: 3.1.407
+            - task: DockerInstaller@0
+            - task: KubectlInstaller@0
+            - task: HelmInstaller@1
+            - bash: | 
+                dotnet tool install --global Cake.tool
+              displayName: 'Install Cake.Tool'
+            - bash: |
+                export PATH="$PATH:$HOME/.dotnet/tools"
+                export PATH="$HOME/.dotnet:$PATH"
+              displayName: 'Export dotnet core path'
+            - script: dotnet cake --target=Build
+              displayName: 'Build Project'
+            - script: dotnet cake --target=Run-Tests
+              displayName: 'Run project tests'
+            - script: dotnet cake --target=Docker-Build
+              displayName: 'Docker build'
+            - script: dotnet cake --target=Docker-Push
+              displayName: 'Docker Push'
+              env:
+                DOCKER_REGISTRY_USERNAME: $(DOCKER_REGISTRY_USERNAME)
+                DOCKER_REGISTRY_PASSWORD: $(DOCKER_REGISTRY_PASSWORD)
+            - script: dotnet cake --target=Helm-Deploy
+              displayName: 'Kubernetes Deploy'
+              env:
+                DOCKER_REGISTRY_USERNAME: $(DOCKER_REGISTRY_USERNAME)
+                DOCKER_REGISTRY_PASSWORD: $(DOCKER_REGISTRY_PASSWORD)
